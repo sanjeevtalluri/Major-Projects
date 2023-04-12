@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="./signup.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="signup-box">
+      <h1>Sign Up</h1>
+      <h4>It's free and only takes a minute</h4>
+      <form>
+        <label for="name">Name</label>
+        <input type="text" placeholder="" name="name" id ="name" />
+        <label for="email">Email</label>
+        <input type="email" placeholder="" name="email" id ="email" />
+        <label for="password">Password</label>
+        <input type="password" placeholder="" name="password" id ="password"/>
+        <input type="button" value="Submit" id="signupBtn" />
+       </form>
+      <p>
+        By clicking the Sign Up button,you agree to our <br />
+        <a href="#">Terms and Condition</a> and <a href="#">Policy Privacy</a>
+      </p>
+    </div>
+    <p class="para-2">
+      Already have an account? <a href="login.html">Login here</a>
+    </p>
+    <script src="./signup.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+  </body>
+</html>
