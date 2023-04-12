@@ -64,5 +64,12 @@ body {
   .para-2 a {
     color: #49c1a2;
   }
+  .error-msg{
+    color: red;
+    display: none;
+  }
+  .error-msg.show{
+    display: block;
+  }
   
   

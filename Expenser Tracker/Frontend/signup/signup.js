@@ -2,12 +2,13 @@ const userName = document.querySelector('#name');
 const userEmail = document.querySelector('#email');
 const userPassword = document.querySelector('#password');
 const signupBtn = document.querySelector('#signupBtn');
+const errorMsg = document.querySelector('.error-msg');
 
 const baseUrl = "http://localhost:3000/users";
-signupBtn.addEventListener('click',onSignupEventHandler);
- function onSignupEventHandler(e){
+signupBtn.addEventListener('click', onSignupEventHandler);
+function onSignupEventHandler(e) {
     console.log('in');
-    addUserToCrud(userName.value,userEmail.value,userPassword.value); 
+    addUserToCrud(userName.value, userEmail.value, userPassword.value);
     resetFormValues();
 }
 
@@ -23,12 +24,22 @@ async function addUserToCrud(name, email, password) {
         resetFormValues();
     }
     catch (err) {
-        console.log(err);
+        console.log(errorMsg);
+        toggleDisplay(errorMsg);
     }
 
 }
-function resetFormValues(){
+function resetFormValues() {
     userName.value = '';
     userEmail.value = '';
     userPassword.value = '';
+}
+
+function toggleDisplay(element) {
+    if(element.classList.contains('show')){
+        element.classList.remove('show');
+    }
+    else{
+        element.classList.add('show');
+    }
 }
