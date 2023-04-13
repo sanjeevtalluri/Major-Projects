@@ -2,7 +2,8 @@ const userName = document.querySelector('#name');
 const userEmail = document.querySelector('#email');
 const userPassword = document.querySelector('#password');
 const signupBtn = document.querySelector('#signupBtn');
-const errorMsg = document.querySelector('.error-msg');
+const errorMsgDom = document.querySelector('.error-msg');
+const successMsgDom = document.querySelector('.success-msg');
 
 const baseUrl = "http://localhost:3000/users";
 signupBtn.addEventListener('click', onSignupEventHandler);
@@ -20,12 +21,16 @@ async function addUserToCrud(name, email, password) {
             email: email,
             password: password
         });
-        createItemAndAppendToTable(amount, description, category, res.data.id);
         resetFormValues();
+        successMsg = res.data.message;
+        errorMsgDom.textContent = '';
+        successMsgDom.textContent = successMsg;
     }
     catch (err) {
-        console.log(errorMsg);
-        toggleDisplay(errorMsg);
+        errorMsg = err.response.data.message;
+        successMsgDom.textContent = '';
+        errorMsgDom.textContent = errorMsg;
+        //toggleDisplay(errorMsg);
     }
 
 }
