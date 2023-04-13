@@ -1,7 +1,14 @@
 .login-box {
     width: 360px;
-    height: 280px;
+    height: auto;
     margin: auto;
     border-radius: 3px;
     background-color: white;
+  }
+  .error-msg{
+    color: red;
+
+  }
+  .success-msg{
+    color: green;
   }
