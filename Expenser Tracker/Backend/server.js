@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 
 const authRoutes = require('./routes/auth');
 
+const expenseRoutes = require('./routes/expense');
+
 const sequelize = require('./util/database');
 
 const app = express();
@@ -16,6 +18,7 @@ app.use(bodyParser.json({ extended: false }));
 
 app.use('/users', authRoutes);
 
+app.use('/expenses',expenseRoutes);
 
 sequelize.sync().then((result)=>{
     app.listen(3000);
