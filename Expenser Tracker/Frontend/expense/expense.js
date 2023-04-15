@@ -5,7 +5,7 @@ const expenseAmount = document.getElementById('amount');
 const expenseDescription = document.getElementById('description');
 const expenseCategory = document.getElementById('category');
 
-addButton.addEventListener('click',addExpenseEventHandler);
+addButton.addEventListener('click', addExpenseEventHandler);
 expenseTableBody.addEventListener('click', onAction);
 
 
@@ -13,13 +13,17 @@ const baseUrl = "http://localhost:3000/expenses";
 let edit = false;
 let editId = "";
 let editTrElement = null;
+const config = {
+    headers: {
+        Authorization: localStorage.getItem('token')
+    }
+};
 
 init();
 
 function init() {
     getUsersFromCurd();
 }
-
 
 async function addUserToCrud(amount, description, category) {
     let res = null;
@@ -28,7 +32,7 @@ async function addUserToCrud(amount, description, category) {
             amount: amount,
             description: description,
             category: category
-        });
+        },config);
         createItemAndAppendToTable(amount, description, category, res.data.id);
         resetFormValues();
     }
@@ -41,7 +45,7 @@ async function addUserToCrud(amount, description, category) {
 async function getUsersFromCurd() {
     let res = null;
     try {
-        res = await axios.get(baseUrl + "/getExpenses");
+        res = await axios.get(baseUrl + "/getExpenses", config);
         res.data.forEach(item => {
             createItemAndAppendToTable(item.amount, item.description, item.category, item.id);
         })
@@ -56,7 +60,7 @@ async function getUsersFromCurd() {
 async function deleteUserFromCrud(trElement) {
     const id = trElement.getAttribute('apiId');
     try {
-        await axios.delete(`${baseUrl}/deleteExpense/${id}`)
+        await axios.delete(`${baseUrl}/deleteExpense/${id}`,config)
         remove(trElement);
     }
     catch (err) {
@@ -75,7 +79,7 @@ async function UpdateUserFromCrud(id, amount, description, category, trElement) 
         createItemAndAppendToTable(amount, description, category, id);
         edit = false;
         editId = "";
-        editTrElement = null;  
+        editTrElement = null;
     }
     catch (err) {
         console.log(err);
@@ -83,7 +87,7 @@ async function UpdateUserFromCrud(id, amount, description, category, trElement) 
 
 
 }
-function resetFormValues(){
+function resetFormValues() {
     expenseAmount.value = '';
     expenseDescription.value = '';
     expenseCategory.value = 'Movie';
@@ -92,29 +96,29 @@ function resetFormValues(){
 
 
 
-function addExpenseEventHandler(){
+function addExpenseEventHandler() {
     if (edit) {
-        UpdateUserFromCrud(editId, expenseAmount.value,expenseDescription.value,expenseCategory.value, editTrElement);
+        UpdateUserFromCrud(editId, expenseAmount.value, expenseDescription.value, expenseCategory.value, editTrElement);
     }
     else {
-        addUserToCrud(expenseAmount.value,expenseDescription.value,expenseCategory.value); 
+        addUserToCrud(expenseAmount.value, expenseDescription.value, expenseCategory.value);
     }
     resetFormValues();
 }
 
-function createCell(element,value){
+function createCell(element, value) {
     const newElement = document.createElement(element);
     newElement.innerText = value;
     return newElement;
 }
 
 
-function createItemAndAppendToTable(amount, description, category, id){
+function createItemAndAppendToTable(amount, description, category, id) {
     const trElement = document.createElement('tr');
-    trElement.setAttribute('apiId',id);
-    trElement.appendChild(createCell('td',amount));
-    trElement.appendChild(createCell('td',description));
-    trElement.appendChild(createCell('td',category));
+    trElement.setAttribute('apiId', id);
+    trElement.appendChild(createCell('td', amount));
+    trElement.appendChild(createCell('td', description));
+    trElement.appendChild(createCell('td', category));
     const duplicateActionButtons = actionButtons.cloneNode(true);
     trElement.appendChild(duplicateActionButtons);
     expenseTableBody.appendChild(trElement);
@@ -123,7 +127,7 @@ function createItemAndAppendToTable(amount, description, category, id){
 
 function onAction(e) {
     e.preventDefault();
-    
+
     if (e.target.classList.contains('delete-button')) {
         let isConfirmedToDelete = confirm('Do you want to delete the item');
         if (isConfirmedToDelete) {
@@ -134,8 +138,8 @@ function onAction(e) {
     else if (e.target.classList.contains('edit-button')) {
         let trElement = e.target.parentElement.parentElement.parentElement.parentElement;
         let id = trElement.getAttribute('apiId');
-        populateValuesInForm(id, trElement.childNodes[0].innerText,trElement.childNodes[1].innerText,
-            trElement.childNodes[2].innerText,trElement);
+        populateValuesInForm(id, trElement.childNodes[0].innerText, trElement.childNodes[1].innerText,
+            trElement.childNodes[2].innerText, trElement);
     }
 
 }
@@ -144,7 +148,7 @@ function remove(trElement) {
 }
 
 
-function populateValuesInForm(id,amount, description, category,trElement){
+function populateValuesInForm(id, amount, description, category, trElement) {
     expenseAmount.value = amount;
     expenseDescription.value = description;
     expenseCategory.value = category;

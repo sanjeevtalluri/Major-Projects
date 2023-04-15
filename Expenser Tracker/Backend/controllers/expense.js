@@ -1,27 +1,25 @@
+const { where } = require('sequelize');
 const Expense = require('../models/expense');
 
 
 exports.getExpenses = async (req,res,next)=>{
 
   try{
-    const expenses = await Expense.findAll();
-    res.json(expenses);
+    const expenses = await Expense.findAll({where:{userId:req.user.id}});
+    res.status(200).json(expenses);
   }
   catch(err){
-    res.json(err);
+    res.status(401).json({success:'false'});
   }
 }
 exports.addExpense = async (req,res,next)=>{
   try{
-    const expense = await Expense.create(req.body);
-    if (expense) {
-      res.json(expense);
-     } else {
-      res.status(500);
-     }
+    const updatedBody = {...req.body,userId:req.user.id}
+    const expense = await Expense.create(updatedBody);
+    res.status(200).json(expense);
   }
   catch(err){
-    res.json(err);
+    res.status(401).json({success:'false'});
   }
 }
 
@@ -33,28 +31,28 @@ exports.updateExpense = async (req,res,next)=>{
       expense.description = req.body.description;
       expense.category = req.body.category;
       await expense.save();
-      res.json();
+      res.status(200).json();
      } else {
-      res.status(500);
+      res.status(404).json({success:false,message:'Expense not found'});
      }
   }
   catch(err){
-    res.json(err);
+    res.status(401).json({success:'false'});
   }
 }
 
 exports.deleteExpense = async (req,res,next)=>{
   try{
-    const expense = await Expense.findByPk(req.params.expenseId);
+    const expense = await Expense.findOne({where:{id:req.params.expenseId,userId:req.user.id}});
     if (expense) {
       await expense.destroy();
-      res.json();
+      res.status(200).json();
      } else {
-      res.status(500);
+        res.status(404).json({success:false,message:'Expense not found'});
      }
   }
   catch(err){
-    res.json(err);
+    res.status(401).json({success:'false'});
   }
 }
 

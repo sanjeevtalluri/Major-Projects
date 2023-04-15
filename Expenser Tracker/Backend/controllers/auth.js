@@ -1,6 +1,11 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
+var jwt = require('jsonwebtoken');
 const saltRounds = 10;
+
+const generateToken = (user)=>{
+  return jwt.sign({ userId: user.id }, 'secretkey');
+}
 
 exports.createUser = async (req, res, next) => {
   try {
@@ -44,8 +49,10 @@ exports.loginUser = async (req, res, next) => {
     if (user) {
       const match = await bcrypt.compare(req.body.password, user.password);
       if (match) {
+        const token = generateToken(user);
         res.status(200).json({
-          message: "User login successful"
+          message: "User login successful",
+          token:token
         })
       }
       else {

@@ -24,6 +24,7 @@ async function checkUserFromCrud(email, password) {
         successMsg = res.data.message;
         errorMsgDom.textContent = '';
         successMsgDom.textContent = successMsg;
+        localStorage.setItem('token',res.data.token);
         setTimeout(()=>{
             window.location.href = "http://127.0.0.1:5500/Expenser%20Tracker/Frontend/expense/expense.html";
         },2000)
