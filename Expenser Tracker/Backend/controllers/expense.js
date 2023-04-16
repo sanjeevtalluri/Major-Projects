@@ -1,16 +1,15 @@
-const { where } = require('sequelize');
 const Expense = require('../models/expense');
 
 
 exports.getExpenses = async (req,res,next)=>{
-
-  try{
-    const expenses = await Expense.findAll({where:{userId:req.user.id}});
-    res.status(200).json(expenses);
-  }
-  catch(err){
-    res.status(401).json({success:'false'});
-  }
+    try{
+        const expenses = await Expense.findAll({where:{userId:req.user.id}});
+        res.status(200).json(expenses);
+      }
+      catch(err){
+        res.status(401).json({success:'false'});
+      }
+  
 }
 exports.addExpense = async (req,res,next)=>{
   try{

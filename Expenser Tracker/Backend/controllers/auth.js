@@ -75,6 +75,19 @@ exports.loginUser = async (req, res, next) => {
   }
 }
 
+exports.isPremiumUser = async (req, res, next) => {
+  try {
+    res.status(200).json({
+      isPremiumUser: req.user.isPremiumUser
+    })
+  }
+  catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: 'Internal server error'
+    })
+  }
+}
 
 
 
