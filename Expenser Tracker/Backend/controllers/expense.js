@@ -15,6 +15,8 @@ exports.addExpense = async (req,res,next)=>{
   try{
     const updatedBody = {...req.body,userId:req.user.id}
     const expense = await Expense.create(updatedBody);
+    req.user.totalExpensesAmount = req.user.totalExpensesAmount + parseInt(req.body.amount);
+    await req.user.save();
     res.status(200).json(expense);
   }
   catch(err){
