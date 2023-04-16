@@ -5,17 +5,31 @@ const expenseAmount = document.getElementById('amount');
 const expenseDescription = document.getElementById('description');
 const expenseCategory = document.getElementById('category');
 const buyPremiumButton = document.getElementById('buy-premium-btn');
+const premiumMessage = document.getElementById('premium-msg');
+const showLeaderboardBtn = document.getElementById('show-leaderboard-btn');
+const leaderboardContainer = document.getElementById('leaderboard-container');
+const leaderboardTableBody = document.getElementById('leaderboard-table-body')
 
 addButton.addEventListener('click', addExpenseEventHandler);
 expenseTableBody.addEventListener('click', onAction);
-buyPremiumButton.addEventListener('click',buyPremiumEventHandler);
+buyPremiumButton.addEventListener('click', buyPremiumEventHandler);
+showLeaderboardBtn.addEventListener('click', showLeaderBoardEventHandler);
 
 
 const baseUrl = "http://localhost:3000/expenses";
 const purchaseUrl = "http://localhost:3000/purchase";
+const usersUrl = "http://localhost:3000/users";
+const premiumUrl = "http://localhost:3000/premium";
+
+
 let edit = false;
 let editId = "";
 let editTrElement = null;
+let isPremiumUser = false;
+let leaderboardCount = 0;
+let isLeaderBoardVisible = false;
+let leaderboardItems = [];
+
 const config = {
     headers: {
         Authorization: localStorage.getItem('token')
@@ -25,7 +39,49 @@ const config = {
 init();
 
 function init() {
+    isPremiumUserFn();
     getUsersFromCurd();
+    showLeaderboardBtn.style.visibility = 'hidden';
+    leaderboardContainer.style.visibility = 'hidden';
+}
+
+async function getLeaderboard() {
+    try {
+        if (!isLeaderBoardVisible && !leaderboardItems.length) {
+            const res = await axios.get(premiumUrl + "/showLeaderboard", config);
+            leaderboardItems = res.data;
+        }
+        if (!isLeaderBoardVisible) {
+            leaderboardContainer.style.visibility = 'visible';
+            leaderboardItems.forEach(item => {
+                createItemAndAppendToLeaderboardTable(item.name, item.totalExpensesAmount);
+            })
+            showLeaderboardBtn.textContent = 'Hide leaderboard';
+        }
+        else {
+            leaderboardContainer.style.visibility = 'hidden';
+            showLeaderboardBtn.textContent = 'Show leaderboard';
+            leaderboardTableBody.innerHTML = '';
+            leaderboardCount = 0;
+        }
+        isLeaderBoardVisible = !isLeaderBoardVisible;
+    }
+    catch (err) {
+        console.log(err);
+    }
+}
+
+async function isPremiumUserFn() {
+    try {
+        const res = await axios.get(usersUrl + "/isPremiumUser", config);
+        isPremiumUser = res.data.isPremiumUser;
+        if (isPremiumUser) {
+            enablePremiumFeatures();
+        }
+    }
+    catch (err) {
+        console.log(err);
+    }
 }
 
 async function addUserToCrud(amount, description, category) {
@@ -35,7 +91,7 @@ async function addUserToCrud(amount, description, category) {
             amount: amount,
             description: description,
             category: category
-        },config);
+        }, config);
         createItemAndAppendToTable(amount, description, category, res.data.id);
         resetFormValues();
     }
@@ -63,7 +119,7 @@ async function getUsersFromCurd() {
 async function deleteUserFromCrud(trElement) {
     const id = trElement.getAttribute('apiId');
     try {
-        await axios.delete(`${baseUrl}/deleteExpense/${id}`,config)
+        await axios.delete(`${baseUrl}/deleteExpense/${id}`, config)
         remove(trElement);
     }
     catch (err) {
@@ -91,28 +147,29 @@ async function UpdateUserFromCrud(id, amount, description, category, trElement) 
 
 async function buyPremiumFromApi() {
     try {
-        const response = await axios.get(`${purchaseUrl}/buyPremium`,config);
+        const response = await axios.get(`${purchaseUrl}/buyPremium`, config);
         console.log(response);
         var options = {
             'key': response.data.key_id,
             'order_id': response.data.order.id,
-            'handler': async (response)=>{
-                await axios.post(`${purchaseUrl}/updateTransactionStatus`,{
-                    order_id:options.order_id,
+            'handler': async (response) => {
+                await axios.post(`${purchaseUrl}/updateTransactionStatus`, {
+                    order_id: options.order_id,
                     payment_id: response.razorpay_payment_id
                 }, config);
                 alert('You are premium user now');
+                enablePremiumFeatures();
             }
         }
         var rzp1 = new Razorpay(options);
         rzp1.open();
         //e.preventDefault();
 
-        rzp1.on('payment.failed',async (response)=>{
+        rzp1.on('payment.failed', async (response) => {
             console.log(response);
-            await axios.post(`${purchaseUrl}/updateTransactionStatusFail`,{
-                order_id:options.order_id,
-            },config)
+            await axios.post(`${purchaseUrl}/updateTransactionStatusFail`, {
+                order_id: options.order_id,
+            }, config)
             alert('Something went wrong');
         })
     }
@@ -129,6 +186,10 @@ function resetFormValues() {
     addButton.value = 'Add Expense';
 }
 
+function showLeaderBoardEventHandler() {
+    getLeaderboard();
+
+}
 
 
 function addExpenseEventHandler() {
@@ -141,7 +202,7 @@ function addExpenseEventHandler() {
     resetFormValues();
 }
 
-function buyPremiumEventHandler(){
+function buyPremiumEventHandler() {
     buyPremiumFromApi();
 }
 function createCell(element, value) {
@@ -162,6 +223,14 @@ function createItemAndAppendToTable(amount, description, category, id) {
     expenseTableBody.appendChild(trElement);
 }
 
+function createItemAndAppendToLeaderboardTable(name, totalExpensesAmount) {
+    leaderboardCount++;
+    const trElement = document.createElement('tr');
+    trElement.appendChild(createCell('td', leaderboardCount));
+    trElement.appendChild(createCell('td', name));
+    trElement.appendChild(createCell('td', totalExpensesAmount?totalExpensesAmount:0));
+    leaderboardTableBody.appendChild(trElement);
+}
 
 function onAction(e) {
     e.preventDefault();
@@ -194,4 +263,10 @@ function populateValuesInForm(id, amount, description, category, trElement) {
     edit = true;
     editTrElement = trElement;
     addButton.value = 'Update Expense';
+}
+
+function enablePremiumFeatures() {
+    buyPremiumButton.style.visibility = "hidden";
+    premiumMessage.textContent = 'You are premium user now';
+    showLeaderboardBtn.style.visibility = 'visible';
 }
