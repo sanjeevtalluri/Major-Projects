@@ -45,11 +45,15 @@ function init() {
     leaderboardContainer.style.visibility = 'hidden';
 }
 
+async function getLeaderBoardFromCrud(){
+    const res = await axios.get(premiumUrl + "/showLeaderboard", config);
+    leaderboardItems = res.data;
+}
+
 async function getLeaderboard() {
     try {
         if (!isLeaderBoardVisible && !leaderboardItems.length) {
-            const res = await axios.get(premiumUrl + "/showLeaderboard", config);
-            leaderboardItems = res.data;
+            await getLeaderBoardFromCrud();
         }
         if (!isLeaderBoardVisible) {
             leaderboardContainer.style.visibility = 'visible';
@@ -121,6 +125,7 @@ async function deleteUserFromCrud(trElement) {
     try {
         await axios.delete(`${baseUrl}/deleteExpense/${id}`, config)
         remove(trElement);
+        await getLeaderBoardFromCrud();
     }
     catch (err) {
         console.log(err);

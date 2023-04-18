@@ -2,12 +2,14 @@ const User = require('../models/user');
 const bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
 const saltRounds = 10;
+const sequelize = require('../util/database');
 
 const generateToken = (user)=>{
   return jwt.sign({ userId: user.id }, 'secretkey');
 }
 
 exports.createUser = async (req, res, next) => {
+  const t = await sequelize.transaction();
   try {
     const user = await User.findOne({
       where: { email: req.body.email }
@@ -19,8 +21,9 @@ exports.createUser = async (req, res, next) => {
             name: req.body.name,
             email: req.body.email,
             password: hash
-          });
+          },{transaction:t});
           if (user) {
+            await t.commit();
             res.status(200).json({ message: 'User created successfully' });
           } else {
             res.status(401).json({ message: 'Error while creating user' });
@@ -38,6 +41,7 @@ exports.createUser = async (req, res, next) => {
   }
   catch (err) {
     console.log(err);
+    await t.rollback();
     res.status(500).json({ message: 'Internal server error' });
   }
 }
