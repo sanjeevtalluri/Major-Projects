@@ -29,6 +29,8 @@ app.use(cors());
 
 app.use(bodyParser.json({ extended: false }));
 
+app.use(bodyParser.urlencoded({ extended: false }));
+
 app.use('/users', authRoutes);
 
 app.use('/expenses',expenseRoutes);

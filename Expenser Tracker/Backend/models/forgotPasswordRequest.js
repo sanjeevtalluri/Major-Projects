@@ -4,8 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const ForgotPasswordRequest = sequelize.define('forgotPasswordRequest', {
     id: {
-        type: Sequelize.UUIDV4,
-        allowNull: false,
+        type: Sequelize.UUID,
         primaryKey: true
     },
     isActive: {
@@ -14,8 +13,6 @@ const ForgotPasswordRequest = sequelize.define('forgotPasswordRequest', {
         defaultValue: false
     }
 })
-ForgotPasswordRequest.beforeCreate((forgotPasswordRequest, _) => {
-    return forgotPasswordRequest.id = uuidv4();
-});
+
 
 module.exports = ForgotPasswordRequest;

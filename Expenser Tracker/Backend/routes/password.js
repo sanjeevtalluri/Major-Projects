@@ -13,6 +13,8 @@ router.post('/forgotPassword',passwordController.forgotPassword);
 
 router.get('/resetpassword/:id',passwordController.resetPassword);
 
+router.post('/resetpassword',passwordController.resetPasswordPost);
+
  
 
 
