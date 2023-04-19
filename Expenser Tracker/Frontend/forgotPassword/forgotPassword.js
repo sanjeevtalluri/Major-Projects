@@ -1,7 +1,7 @@
 const resetPasswordBtn = document.getElementById('resetPasswordBtn');
 const userEmail = document.querySelector('#email');
 
-const baseUrl = "http://localhost:3000/users";
+const baseUrl = "http://localhost:3000/password";
 
 resetPasswordBtn.addEventListener('click',resetPasswordEventHandler);
 
@@ -17,6 +17,7 @@ async function resetPasswordFromApi(email) {
         res = await axios.post(baseUrl + "/forgotPassword", {
             email:email
         });
+        window.location.href = "../forgotPassword/forgotPasswordRequest.html";
     }
     catch (err) {
         console.log(err);

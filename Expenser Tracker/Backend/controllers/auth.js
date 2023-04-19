@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
 const saltRounds = 10;
 const sequelize = require('../util/database');
-const Sib = require('sib-api-v3-sdk')
+
 
 const generateToken = (user) => {
   return jwt.sign({ userId: user.id }, 'secretkey');
@@ -94,43 +94,7 @@ exports.isPremiumUser = async (req, res, next) => {
   }
 }
 
-exports.resetPassword = async (req, res, next) => {
-  try {
-    const client = Sib.ApiClient.instance
-    const apiKey = client.authentications['api-key']
-    apiKey.apiKey = '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';
-    const tranEmailApi = new Sib.TransactionalEmailsApi()
-    console.log(req.body.email)
-    const sender = {
-      email: 'sanjeevtalluri007@gmail.com',
-      name: 'sanjeev',
-    }
-    const receivers = [
-      {
-        email: req.body.email,
-      },
-    ]
-    tranEmailApi
-      .sendTransacEmail({
-        sender,
-        to: receivers,
-        subject: 'Reset your password',
-        htmlContent: `<h1>Reset your password</h1>`,
-      })
-      .then(()=>{
-        console.log('done');
-        //res.send(201).json({success:true});
-      })
-      .catch((err)=>{
-        console.log(err);
-        //res.send(401).json({success:false});
-      })
-  }
-  catch(err){
-    console.log(err);
-    res.send(401).json({success:false});
-  };
-}
+
 
 
 
