@@ -16,5 +16,7 @@ const router = express.Router();
 
  router.get('/isPremiumUser',authMiddleware,authController.isPremiumUser)
 
+ router.post('/forgotPassword',authController.resetPassword);
+
 
 module.exports = router;
