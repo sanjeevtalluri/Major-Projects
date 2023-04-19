@@ -8,12 +8,14 @@ const buyPremiumButton = document.getElementById('buy-premium-btn');
 const premiumMessage = document.getElementById('premium-msg');
 const showLeaderboardBtn = document.getElementById('show-leaderboard-btn');
 const leaderboardContainer = document.getElementById('leaderboard-container');
-const leaderboardTableBody = document.getElementById('leaderboard-table-body')
+const leaderboardTableBody = document.getElementById('leaderboard-table-body');
+const pdfBtn = document.getElementById('pdf-btn');
 
 addButton.addEventListener('click', addExpenseEventHandler);
 expenseTableBody.addEventListener('click', onAction);
 buyPremiumButton.addEventListener('click', buyPremiumEventHandler);
 showLeaderboardBtn.addEventListener('click', showLeaderBoardEventHandler);
+pdfBtn.addEventListener('click',pdfEventHandler);
 
 
 const baseUrl = "http://localhost:3000/expenses";
@@ -43,6 +45,10 @@ function init() {
     getUsersFromCurd();
     showLeaderboardBtn.style.visibility = 'hidden';
     leaderboardContainer.style.visibility = 'hidden';
+}
+
+function pdfEventHandler(){
+    window.location.href = "../report/report.html";
 }
 
 async function getLeaderBoardFromCrud(){
