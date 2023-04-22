@@ -10,10 +10,14 @@ const router = express.Router();
 // /admin/add-product => GET
 
 
- router.post('/signup',  authController.createUser);
+router.post('/signup', authController.createUser);
 
- router.post('/login', authController.loginUser);
+router.post('/login', authController.loginUser);
 
- router.get('/isPremiumUser',authMiddleware,authController.isPremiumUser);
+router.get('/isPremiumUser', authMiddleware, authController.isPremiumUser);
+
+router.get('/downloadReport', authMiddleware, authController.downloadReport);
+
+router.get('/fileDownloads',authMiddleware,authController.fileDownloads);
 
 module.exports = router;

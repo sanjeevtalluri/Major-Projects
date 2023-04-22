@@ -19,6 +19,7 @@ const Expense = require('./models/expense');
 const User = require('./models/user');
 const Order = require('./models/order');
 const ForgotPasswordRequest = require('./models/forgotPasswordRequest');
+const FileDownload = require('./models/fileDownload');
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
@@ -52,6 +53,10 @@ User.hasMany(Order);
 ForgotPasswordRequest.belongsTo(User,{ constraints: true, onDelete: 'CASCADE' });
 
 User.hasMany(ForgotPasswordRequest);
+
+FileDownload.belongsTo(User,{ constraints: true, onDelete: 'CASCADE' });
+
+User.hasMany(FileDownload);
 
 sequelize.sync().then((result)=>{
     app.listen(3000);

@@ -9,13 +9,14 @@ const premiumMessage = document.getElementById('premium-msg');
 const showLeaderboardBtn = document.getElementById('show-leaderboard-btn');
 const leaderboardContainer = document.getElementById('leaderboard-container');
 const leaderboardTableBody = document.getElementById('leaderboard-table-body');
-const pdfBtn = document.getElementById('pdf-btn');
+const downloadReportBtn = document.getElementById('download-report-btn');
+const downloadsTableBody =document.getElementById('downloads-table-body');
 
 addButton.addEventListener('click', addExpenseEventHandler);
 expenseTableBody.addEventListener('click', onAction);
 buyPremiumButton.addEventListener('click', buyPremiumEventHandler);
 showLeaderboardBtn.addEventListener('click', showLeaderBoardEventHandler);
-pdfBtn.addEventListener('click',pdfEventHandler);
+downloadReportBtn.addEventListener('click',downloadReportEventHandler);
 
 
 const baseUrl = "http://localhost:3000/expenses";
@@ -43,12 +44,39 @@ init();
 function init() {
     isPremiumUserFn();
     getUsersFromCurd();
+    getDownloadsFromApi();
     showLeaderboardBtn.style.visibility = 'hidden';
     leaderboardContainer.style.visibility = 'hidden';
 }
 
-function pdfEventHandler(){
-    window.location.href = "../report/report.html";
+async function getDownloadsFromApi(){
+    try {
+        const res = await axios.get(usersUrl + "/fileDownloads", config);
+        res.data.fileDownloads.forEach(item => {
+            createItemAndAppendToDownloadsTable(item.fileUrl,item.fileName,item.createdAt);
+        });
+        
+    }
+    catch (err) {
+        console.log(err);
+    }
+}
+
+async function downloadReportFromApi(){
+    try {
+        const res = await axios.get(usersUrl + "/downloadReport", config);
+        const newAnchorEle = document.createElement('a');
+        newAnchorEle.href = res.data.fileUrl;
+        newAnchorEle.download = 'Expenses.csv';
+        newAnchorEle.click(); 
+    }
+    catch (err) {
+        console.log(err);
+    }
+}
+
+function downloadReportEventHandler(){
+    downloadReportFromApi();
 }
 
 async function getLeaderBoardFromCrud(){
@@ -66,7 +94,7 @@ async function getLeaderboard() {
             leaderboardItems.forEach(item => {
                 createItemAndAppendToLeaderboardTable(item.name, item.totalExpensesAmount);
             })
-            showLeaderboardBtn.textContent = 'Hide leaderboard';
+            showLeaderboardBtn.textContent = 'Hide Premium Features';
         }
         else {
             leaderboardContainer.style.visibility = 'hidden';
@@ -232,6 +260,21 @@ function createItemAndAppendToTable(amount, description, category, id) {
     const duplicateActionButtons = actionButtons.cloneNode(true);
     trElement.appendChild(duplicateActionButtons);
     expenseTableBody.appendChild(trElement);
+}
+
+function createItemAndAppendToDownloadsTable(url,fileName,createdAt){
+    const trElement = document.createElement('tr');
+    const tdElement = document.createElement('td');
+    const tdElement2 = document.createElement('td');
+    const anchorElement = document.createElement('a');
+    anchorElement.href = url;
+    anchorElement.target = '_blank';
+    anchorElement.innerText = fileName;
+    tdElement.appendChild(anchorElement);
+    tdElement2.innerText = createdAt;
+    trElement.appendChild(tdElement);
+    trElement.appendChild(tdElement2);
+    downloadsTableBody.appendChild(trElement);
 }
 
 function createItemAndAppendToLeaderboardTable(name, totalExpensesAmount) {
