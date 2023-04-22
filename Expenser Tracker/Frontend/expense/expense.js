@@ -10,13 +10,14 @@ const showLeaderboardBtn = document.getElementById('show-leaderboard-btn');
 const leaderboardContainer = document.getElementById('leaderboard-container');
 const leaderboardTableBody = document.getElementById('leaderboard-table-body');
 const downloadReportBtn = document.getElementById('download-report-btn');
-const downloadsTableBody =document.getElementById('downloads-table-body');
+const downloadsTableBody = document.getElementById('downloads-table-body');
+const paginationContainer = document.getElementById('pagination-container');
 
 addButton.addEventListener('click', addExpenseEventHandler);
 expenseTableBody.addEventListener('click', onAction);
 buyPremiumButton.addEventListener('click', buyPremiumEventHandler);
 showLeaderboardBtn.addEventListener('click', showLeaderBoardEventHandler);
-downloadReportBtn.addEventListener('click',downloadReportEventHandler);
+downloadReportBtn.addEventListener('click', downloadReportEventHandler);
 
 
 const baseUrl = "http://localhost:3000/expenses";
@@ -32,6 +33,9 @@ let isPremiumUser = false;
 let leaderboardCount = 0;
 let isLeaderBoardVisible = false;
 let leaderboardItems = [];
+let prevBtn = null;
+let currBtn = null;
+let nextBtn = null;
 
 const config = {
     headers: {
@@ -49,37 +53,37 @@ function init() {
     leaderboardContainer.style.visibility = 'hidden';
 }
 
-async function getDownloadsFromApi(){
+async function getDownloadsFromApi() {
     try {
         const res = await axios.get(usersUrl + "/fileDownloads", config);
         res.data.fileDownloads.forEach(item => {
-            createItemAndAppendToDownloadsTable(item.fileUrl,item.fileName,item.createdAt);
+            createItemAndAppendToDownloadsTable(item.fileUrl, item.fileName, item.createdAt);
         });
-        
+
     }
     catch (err) {
         console.log(err);
     }
 }
 
-async function downloadReportFromApi(){
+async function downloadReportFromApi() {
     try {
         const res = await axios.get(usersUrl + "/downloadReport", config);
         const newAnchorEle = document.createElement('a');
         newAnchorEle.href = res.data.fileUrl;
         newAnchorEle.download = 'Expenses.csv';
-        newAnchorEle.click(); 
+        newAnchorEle.click();
     }
     catch (err) {
         console.log(err);
     }
 }
 
-function downloadReportEventHandler(){
+function downloadReportEventHandler() {
     downloadReportFromApi();
 }
 
-async function getLeaderBoardFromCrud(){
+async function getLeaderBoardFromCrud() {
     const res = await axios.get(premiumUrl + "/showLeaderboard", config);
     leaderboardItems = res.data;
 }
@@ -139,13 +143,54 @@ async function addUserToCrud(amount, description, category) {
 
 }
 
-async function getUsersFromCurd() {
+function pagination(data) {
+    if(prevBtn){
+        prevBtn = null;
+        paginationContainer.removeChild(prevBtn);
+    }
+    if(currBtn){
+        currBtn = null;
+        paginationContainer.remove(currBtn);
+    }
+    if(nextBtn){
+        nextBtn = null;
+        paginationContainer.remove(nextBtn);
+    }
+   
+    
+    if (data.hasPreviousPage) {
+        prevBtn = document.createElement('button');
+        prevBtn.innerText = data.previousPage;
+        prevBtn.addEventListener('click', async () => {
+            getUsersFromCurd(data.previousPage);
+        })
+        paginationContainer.appendChild(prevBtn);
+    }
+    currBtn = document.createElement('button');
+    currBtn.innerText = data.currentPage;
+    currBtn.addEventListener('click', async () => {
+        getUsersFromCurd(data.currentPage);
+    })
+    paginationContainer.appendChild(currBtn);
+    if (data.hasNextPage) {
+        nextBtn = document.createElement('button');
+        nextBtn.innerText = data.nextPage;
+        nextBtn.addEventListener('click', async () => {
+            getUsersFromCurd(data.nextPage);
+        })
+        paginationContainer.appendChild(nextBtn);
+    }
+}
+
+async function getUsersFromCurd(pageNo) {
     let res = null;
+    let page = pageNo || 1;
     try {
-        res = await axios.get(baseUrl + "/getExpenses", config);
-        res.data.forEach(item => {
+        res = await axios.get(baseUrl + "/getExpenses?page=" + page, config);
+        res.data.expenses.forEach(item => {
             createItemAndAppendToTable(item.amount, item.description, item.category, item.id);
         })
+        pagination(res.data);
     }
 
     catch (err) {
@@ -262,7 +307,7 @@ function createItemAndAppendToTable(amount, description, category, id) {
     expenseTableBody.appendChild(trElement);
 }
 
-function createItemAndAppendToDownloadsTable(url,fileName,createdAt){
+function createItemAndAppendToDownloadsTable(url, fileName, createdAt) {
     const trElement = document.createElement('tr');
     const tdElement = document.createElement('td');
     const tdElement2 = document.createElement('td');
@@ -282,7 +327,7 @@ function createItemAndAppendToLeaderboardTable(name, totalExpensesAmount) {
     const trElement = document.createElement('tr');
     trElement.appendChild(createCell('td', leaderboardCount));
     trElement.appendChild(createCell('td', name));
-    trElement.appendChild(createCell('td', totalExpensesAmount?totalExpensesAmount:0));
+    trElement.appendChild(createCell('td', totalExpensesAmount ? totalExpensesAmount : 0));
     leaderboardTableBody.appendChild(trElement);
 }
 
