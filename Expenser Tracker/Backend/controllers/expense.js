@@ -2,11 +2,11 @@ const Expense = require('../models/expense');
 
 const sequelize = require('../util/database');
 
-const Items_Per_Page = 2;
 
 exports.getExpenses = async (req,res,next)=>{
     try{
         const page = +req.query.page || 1;
+        const Items_Per_Page = +req.query.itemsPerPage || 2;
         const totalExpenses = await Expense.count({where:{userId:req.user.id}});
         console.log(totalExpenses)
         const expenses = await req.user.getExpenses({

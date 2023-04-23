@@ -5,6 +5,23 @@
     color: red;
 }
 
+.pagination-container{
+    text-align: center;
+}
+.pagination-container .pagination-btn{
+    background-color: green;
+    color: white;
+    border: 1px solid lightgrey;
+    margin: 0px 3px;
+}
+.pagination-container .pagination-btn .active{
+    color: lightskyblue;
+}
+.pagination-selector{
+    width: 30% !important;
+}
+
+
 /* th{
     width: 50%;
 } */

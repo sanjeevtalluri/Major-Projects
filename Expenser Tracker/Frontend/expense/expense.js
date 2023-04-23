@@ -12,12 +12,14 @@ const leaderboardTableBody = document.getElementById('leaderboard-table-body');
 const downloadReportBtn = document.getElementById('download-report-btn');
 const downloadsTableBody = document.getElementById('downloads-table-body');
 const paginationContainer = document.getElementById('pagination-container');
+const paginationSelector = document.getElementById('pagination-selector');
 
 addButton.addEventListener('click', addExpenseEventHandler);
 expenseTableBody.addEventListener('click', onAction);
 buyPremiumButton.addEventListener('click', buyPremiumEventHandler);
 showLeaderboardBtn.addEventListener('click', showLeaderBoardEventHandler);
 downloadReportBtn.addEventListener('click', downloadReportEventHandler);
+paginationSelector.addEventListener('change',onPaginationSelectorChange);
 
 
 const baseUrl = "http://localhost:3000/expenses";
@@ -36,6 +38,7 @@ let leaderboardItems = [];
 let prevBtn = null;
 let currBtn = null;
 let nextBtn = null;
+let paginationSelectorValue = 5;
 
 const config = {
     headers: {
@@ -46,11 +49,19 @@ const config = {
 init();
 
 function init() {
+    paginationSelectorValue = localStorage.getItem('paginationSelector') || 2;
+    paginationSelector.value = paginationSelectorValue;
     isPremiumUserFn();
     getUsersFromCurd();
     getDownloadsFromApi();
     showLeaderboardBtn.style.visibility = 'hidden';
     leaderboardContainer.style.visibility = 'hidden';
+}
+
+function onPaginationSelectorChange(){
+    paginationSelectorValue =  paginationSelector.value;
+    localStorage.setItem('paginationSelector',paginationSelectorValue);
+    getUsersFromCurd();
 }
 
 async function getDownloadsFromApi() {
@@ -144,40 +155,43 @@ async function addUserToCrud(amount, description, category) {
 }
 
 function pagination(data) {
+
+    paginationContainer.innerHTML = '';
     if(prevBtn){
         prevBtn = null;
-        paginationContainer.removeChild(prevBtn);
     }
     if(currBtn){
         currBtn = null;
-        paginationContainer.remove(currBtn);
     }
     if(nextBtn){
         nextBtn = null;
-        paginationContainer.remove(nextBtn);
     }
-   
-    
     if (data.hasPreviousPage) {
         prevBtn = document.createElement('button');
         prevBtn.innerText = data.previousPage;
         prevBtn.addEventListener('click', async () => {
+            prevBtn.classList.add('active');
             getUsersFromCurd(data.previousPage);
         })
+        prevBtn.classList.add('pagination-btn');
         paginationContainer.appendChild(prevBtn);
     }
     currBtn = document.createElement('button');
     currBtn.innerText = data.currentPage;
     currBtn.addEventListener('click', async () => {
+        currBtn.classList.add('active');
         getUsersFromCurd(data.currentPage);
     })
+    currBtn.classList.add('pagination-btn');
     paginationContainer.appendChild(currBtn);
     if (data.hasNextPage) {
         nextBtn = document.createElement('button');
         nextBtn.innerText = data.nextPage;
         nextBtn.addEventListener('click', async () => {
+            nextBtn.classList.add('active');
             getUsersFromCurd(data.nextPage);
         })
+        nextBtn.classList.add('pagination-btn');
         paginationContainer.appendChild(nextBtn);
     }
 }
@@ -186,7 +200,8 @@ async function getUsersFromCurd(pageNo) {
     let res = null;
     let page = pageNo || 1;
     try {
-        res = await axios.get(baseUrl + "/getExpenses?page=" + page, config);
+        res = await axios.get(baseUrl + "/getExpenses?page=" + page+"&itemsPerPage="+paginationSelectorValue, config);
+        expenseTableBody.innerHTML = '';
         res.data.expenses.forEach(item => {
             createItemAndAppendToTable(item.amount, item.description, item.category, item.id);
         })
@@ -297,6 +312,7 @@ function createCell(element, value) {
 
 
 function createItemAndAppendToTable(amount, description, category, id) {
+    
     const trElement = document.createElement('tr');
     trElement.setAttribute('apiId', id);
     trElement.appendChild(createCell('td', amount));
