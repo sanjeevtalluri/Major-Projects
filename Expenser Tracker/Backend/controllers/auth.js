@@ -8,7 +8,8 @@ const FileDownload = require('../models/fileDownload');
 
 
 const generateToken = (user) => {
-  return jwt.sign({ userId: user.id }, 'secretkey');
+  console.log(process.env.JWT_SECRET_KEY);
+  return jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY);
 }
 
 exports.createUser = async (req, res, next) => {
@@ -97,9 +98,9 @@ exports.isPremiumUser = async (req, res, next) => {
 }
 
 async function uploadToS3(data, fileName) {
-  const BUCKET_NAME = 'expensetrackersanjeev';
-  const IAM_USER_KEY = 'AKIAR54LBCWTZCRIKZWO';
-  const IAM_USER_SECRET = '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';
+  const BUCKET_NAME = process.env.BUCKET_NAME;
+  const IAM_USER_KEY = process.env.IAM_USER_KEY
+  const IAM_USER_SECRET = process.env.IAM_USER_SECRET
 
   let s3Bucket = new AWS.S3({
     accessKeyId: IAM_USER_KEY,

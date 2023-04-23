@@ -4,7 +4,7 @@ var jwt = require('jsonwebtoken');
 const authorization = (req, res, next) => {
     try {
         const token = req.header('Authorization');
-        const user = jwt.verify(token, 'secretkey');
+        const user = jwt.verify(token, process.env.JWT_SECRET_KEY);
         User.findByPk(user.userId).then(user => {
             req.user = user;
             next();

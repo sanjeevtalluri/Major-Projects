@@ -1,6 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
+const fs = require('fs');
 
 
 const authRoutes = require('./routes/auth');
@@ -21,8 +25,19 @@ const Order = require('./models/order');
 const ForgotPasswordRequest = require('./models/forgotPasswordRequest');
 const FileDownload = require('./models/fileDownload');
 
+const accessLogStream = fs.createWriteStream(
+    path.join(__dirname, 'access.log'),
+    { flags: 'a' }
+  );
+
 app.set('view engine', 'ejs');
 app.set('views', 'views');
+
+app.use(helmet());
+
+app.use(compression());
+
+app.use(morgan('combined', { stream: accessLogStream }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 

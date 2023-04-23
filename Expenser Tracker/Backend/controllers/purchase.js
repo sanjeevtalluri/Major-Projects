@@ -3,10 +3,10 @@ const sequelize = require('../util/database');
 const Order = require('../models/order');
 const Razorpay = require('razorpay');
 
-
 exports.buyPremium = async (req, res, next) => {
     const t = await sequelize.transaction();
     const amount = 100;
+    
     try {
         var rzrInstance = new Razorpay({
             key_id: 'rzp_test_zoplJnq1cqleD7',
